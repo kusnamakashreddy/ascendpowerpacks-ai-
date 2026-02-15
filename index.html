@@ -3,32 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <title>Ascend Powerpacks</title>
-
 <style>
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f4f6f9;
 }
-
 header {
     background: #0a7cff;
     color: white;
     padding: 20px;
     text-align: center;
 }
-
 section {
     padding: 40px;
     text-align: center;
 }
-
 button {
     background: #0a7cff;
     color: white;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
+    font-size: 14px;
 }
 
 /* Chat styles */
@@ -44,7 +41,6 @@ button {
     cursor: pointer;
     font-size: 18px;
 }
-
 #chat-container {
     display: none;
     position: fixed;
@@ -57,33 +53,20 @@ button {
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     overflow: hidden;
 }
-
 #chat-header {
     background: #0a7cff;
     color: white;
     padding: 15px;
+    font-weight: bold;
 }
-
 #chatbox {
     height: 350px;
     overflow-y: auto;
     padding: 10px;
     font-size: 14px;
 }
-
-#chat-input {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-}
-
-#chat-input input {
-    flex: 1;
-    padding: 8px;
-}
-
-.bot { color: green; margin-bottom: 8px; }
 .user { color: blue; margin-bottom: 8px; }
+.bot { color: green; margin-bottom: 8px; }
 </style>
 </head>
 
@@ -92,98 +75,103 @@ button {
 <header>
 <h1>Ascend Powerpacks</h1>
 <p>Reliable Lithium Battery & Solar Storage Solutions</p>
+<button onclick="toggleChat()">Chat With Us</button>
 </header>
 
 <section>
 <h2>Our Products</h2>
 <p>We provide 5kWh – 50kWh LiFePO4 battery systems for homes and businesses.</p>
-<button onclick="toggleChat()">Chat With Us</button>
 </section>
 
 <!-- Chatbot -->
 <button id="chat-toggle" onclick="toggleChat()">💬</button>
-
 <div id="chat-container">
     <div id="chat-header">Ascend Powerpacks Assistant</div>
     <div id="chatbox"></div>
-    <div id="chat-input">
-        <input id="userInput" placeholder="Ask about pricing, battery size..." />
-        <button onclick="reply()">Send</button>
-    </div>
 </div>
 
 <script>
-let step = 0;
-let lead = {};
+let chat = document.getElementById("chatbox");
 
 function toggleChat() {
-    let chat = document.getElementById("chat-container");
-    chat.style.display = chat.style.display === "none" ? "block" : "none";
+    let container = document.getElementById("chat-container");
+    container.style.display = container.style.display === "none" ? "block" : "none";
 }
 
-function reply() {
-    let inputField = document.getElementById("userInput");
-    let input = inputField.value;
-    let text = input.toLowerCase();
-    let chat = document.getElementById("chatbox");
+// Send message from user
+function sendMessage(message) {
+    chat.innerHTML += "<div class='user'><b>You:</b> " + message + "</div>";
+    handleResponse(message.toLowerCase());
+}
 
-    chat.innerHTML += "<div class='user'><b>You:</b> " + input + "</div>";
+// Main bot response logic
+function handleResponse(text) {
     let response = "";
 
-    if (text.includes("battery")) {
-        response = "We offer lithium battery systems from 5kWh to 50kWh.";
+    // Greeting
+    if (text.includes("hi") || text.includes("hello") || text.includes("how are")) {
+        response = `
+        <div class='bot'>
+        <b>Bot:</b> Welcome to <b>Ascend Powerpacks</b> 👋<br>
+        We specialize in Lithium Battery & Solar Storage Solutions.<br><br>
+        Please choose an option below:
+        </div>
+        ` + optionsMenu();
     }
 
-    else if (text.includes("price")) {
-        response = "5kWh starts at $2,000. 10kWh ranges $3,800–$4,500.";
+    // Option 1 – View Products
+    else if (text === "1") {
+        response = "<div class='bot'><b>Bot:</b> We offer 5kWh–50kWh LiFePO4 battery systems for homes and businesses.</div>" + optionsMenu();
     }
 
-    else if (text.includes("recommend") || text.includes("size")) {
-        response = "How many AC units do you use?";
-        step = 1;
+    // Option 2 – Pricing
+    else if (text === "2") {
+        response = "<div class='bot'><b>Bot:</b> 5kWh starts at $2,000. 10kWh ranges $3,800–$4,500. Final pricing depends on installation.</div>" + optionsMenu();
     }
 
-    else if (step === 1) {
-        let acUnits = parseInt(input);
-        if (acUnits >= 2) {
-            response = "We recommend 15–20kWh for multiple AC usage.";
-        } else {
-            response = "We recommend 5–10kWh for light usage.";
-        }
-        step = 0;
+    // Option 3 – Battery Recommendation
+    else if (text === "3") {
+        response = "<div class='bot'><b>Bot:</b> For small homes: 5–10kWh.<br>Medium homes: 10–20kWh.<br>Large homes/business: 20kWh+.</div>" + optionsMenu();
     }
 
-    else if (text.includes("quote") || text.includes("buy")) {
-        response = "Please enter your full name:";
-        step = 2;
+    // Option 4 – Book Consultation
+    else if (text === "4") {
+        response = "<div class='bot'><b>Bot:</b> Please contact us at <b>sales@ascendpowerpacks.com</b> to schedule a free consultation.</div>" + optionsMenu();
     }
 
-    else if (step === 2) {
-        lead.name = input;
-        response = "Enter your phone number:";
-        step = 3;
+    // Option 5 – Technical Support
+    else if (text === "5") {
+        response = "<div class='bot'><b>Bot:</b> For technical support, please provide your system model and error code. Our support team will contact you shortly.</div>" + optionsMenu();
     }
 
-    else if (step === 3) {
-        lead.phone = input;
-        response = "Thank you! Our sales team will contact you soon.";
-        step = 0;
-        console.log("New Lead:", lead);
-    }
-
-    else if (text.includes("error") || text.includes("problem")) {
-        response = "Please provide your system model and error code.";
-    }
-
+    // Default / Invalid input
     else {
-        response = "I can help with pricing, battery recommendations, quotes, and support.";
+        response = "<div class='bot'><b>Bot:</b> Please select one of the options below.</div>" + optionsMenu();
     }
 
-    chat.innerHTML += "<div class='bot'><b>Bot:</b> " + response + "</div>";
+    chat.innerHTML += response;
     chat.scrollTop = chat.scrollHeight;
-    inputField.value = "";
 }
+
+// Options menu buttons
+function optionsMenu() {
+    return `
+    <div style="margin-top:10px;">
+        <button onclick="sendMessage('1')">1️⃣ View Products</button><br><br>
+        <button onclick="sendMessage('2')">2️⃣ Get Pricing</button><br><br>
+        <button onclick="sendMessage('3')">3️⃣ Battery Recommendation</button><br><br>
+        <button onclick="sendMessage('4')">4️⃣ Book Consultation</button><br><br>
+        <button onclick="sendMessage('5')">5️⃣ Technical Support</button>
+    </div>
+    `;
+}
+
+// Auto open greeting on first load
+window.onload = function() {
+    sendMessage("hi");
+};
 </script>
 
 </body>
 </html>
+
